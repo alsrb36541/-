@@ -1,0 +1,27 @@
+# git ignore file
+*.opensdf
+*.sdf
+*.ipch
+*.suo
+*.exp
+*.ilk
+*.iobj
+*.ipdb
+*.aps
+*.user
+*.tlog
+*.obj
+*.log
+*.res
+*.idb
+*.pch
+*.lastbuildstate
+
+
+# Directories
+ipch
+/*/Debug/
+/*/Release/
+!Debug/*
+!Release/*
+Debug/Config/
