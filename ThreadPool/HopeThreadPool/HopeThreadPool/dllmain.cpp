@@ -1,19 +1,51 @@
-ï»¿// dllmain.cpp : DLL ì• í”Œë¦¬ì¼€ì´ì…˜ì˜ ì§„ì…ì ì„ ì •ì˜í•©ë‹ˆë‹¤.
+// dllmain.cpp : DLLÀÇ ÃÊ±âÈ­ ·çÆ¾À» Á¤ÀÇÇÕ´Ï´Ù.
+//
+
 #include "pch.h"
+#include <afxwin.h>
+#include <afxdllx.h>
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+static AFX_EXTENSION_MODULE HopeThreadPool = { NULL, NULL };
+
+extern "C" int APIENTRY
+DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+	// lpReserved¸¦ »ç¿ëÇÏ´Â °æ¿ì ´ÙÀ½À» Á¦°ÅÇÏ½Ê½Ã¿À.
+	UNREFERENCED_PARAMETER(lpReserved);
 
+	if (dwReason == DLL_PROCESS_ATTACH)
+	{
+		TRACE0("HopeThreadPool.DLLÀ» ÃÊ±âÈ­ÇÏ°í ÀÖ½À´Ï´Ù.\n");
+		
+		// È®Àå DLLÀ» ÇÑ ¹ø¸¸ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+		if (!AfxInitExtensionModule(HopeThreadPool, hInstance))
+			return 0;
+
+		// ÀÌ DLLÀ» ¸®¼Ò½º Ã¼ÀÎ¿¡ »ğÀÔÇÕ´Ï´Ù.
+		// Âü°í: ÀÌ È®Àå DLLÀÌ MFC ÀÀ¿ë ÇÁ·Î±×·¥ÀÌ
+		//  ¾Æ´Ñ ActiveX ÄÁÆ®·Ñ°ú °°Àº MFC ±âº» DLL¿¡
+		//  ÀÇÇØ ¸í½ÃÀûÀ¸·Î ¸µÅ©µÇ¾î ÀÖ´Â °æ¿ì¿¡´Â
+		//  DllMain¿¡¼­ ÀÌ ÁÙÀ» Á¦°ÅÇÏ°í, Á¦°ÅÇÑ ÁÙÀº ÀÌ È®Àå DLL¿¡¼­
+		//  ³»º¸³½ º°µµÀÇ ÇÔ¼ö¿¡ Ãß°¡ÇÕ´Ï´Ù.
+		//  ±×·± ´ÙÀ½ ÀÌ È®Àå DLLÀ» »ç¿ëÇÏ´Â ±âº» DLLÀº
+		//  ÇØ´ç ÇÔ¼ö¸¦ ¸í½ÃÀûÀ¸·Î È£ÃâÇÏ¿© ÀÌ È®Àå DLLÀ» Ãß°¡ÇØ¾ß ÇÕ´Ï´Ù.
+		//  ±×·¸Áö ¾ÊÀ¸¸é CDynLinkLibrary °³Ã¼°¡
+		//  ±âº» DLLÀÇ ¸®¼Ò½º Ã¼ÀÎ¿¡ Ãß°¡µÇÁö ¾ÊÀ¸¹Ç·Î
+		//  ½É°¢ÇÑ ¹®Á¦°¡ ¹ß»ıÇÕ´Ï´Ù.
+
+		new CDynLinkLibrary(HopeThreadPool);
+
+	}
+	else if (dwReason == DLL_PROCESS_DETACH)
+	{
+		TRACE0("HopeThreadPool.DLLÀ» Á¾·áÇÏ°í ÀÖ½À´Ï´Ù.\n");
+
+		// ¼Ò¸êÀÚ°¡ È£ÃâµÇ±â Àü¿¡ ¶óÀÌºê·¯¸®¸¦ Á¾·áÇÕ´Ï´Ù.
+		AfxTermExtensionModule(HopeThreadPool);
+	}
+	return 1;   // È®ÀÎ
+}
